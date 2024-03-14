@@ -1,0 +1,11 @@
+data WORK.IMPORT9;
+  set WORK.IMPORT8;
+  Vaccinationph_c = input(Vaccinationph, 8.);
+run;
+
+proc glimmix data=WORK.IMPORT9;
+class location;
+model CFR = Vaccinationph_c Weeks Vaccinationph_c*Weeks / dist=poisson link=logit solution;
+random int / subject=location;
+run;
+
