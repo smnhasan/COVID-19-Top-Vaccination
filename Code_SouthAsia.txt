@@ -1,0 +1,224 @@
+
+
+
+#### Plot 
+setwd("C:/Users/nhaider/Desktop/Bangladesh/COVID19")
+
+pdf("SouthAsia3.pdf",  height = 10, width=12)
+
+par(mfrow=c(3,3), mar=c(6,6,4,6))
+
+
+## Legend
+
+DHhisto_India <- SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="India"]
+
+plot(log10(DHhisto_India), ylab="", ylim=c(0,4), axes=F, col="white", xlab="",
+     main="Legend", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+#axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+legend("topleft", c("Cases","7days running ave"," Deaths") , col=c("gray",  "black" , "red"), bty="n" , cex=2, lty=c(1,2,1), lwd=2)
+
+
+
+## India 
+
+DHhisto_India <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="India"] +1)
+
+plot(DHhisto_India, ylab="log10(Cases+1)", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="India", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_India2  <- filter(DHhisto_India, rep(1/7,7)) 
+lines(DHhisto_India2, type="l", col="black", lwd=2, lty=2)
+box()
+
+par(new=TRUE)
+
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="India"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+#axis(side = 4, cex.axis=2, lwd=2)
+#mtext (side=4, line=3, "", cex.lab=2)
+
+
+## Pakistan
+
+DHhisto_Pakistan <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="Pakistan"] +1)
+
+plot(DHhisto_Pakistan, ylab="", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="Pakistan", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_Pakistan2  <- filter(DHhisto_Pakistan, rep(1/7,7)) 
+lines(DHhisto_Pakistan2, type="l", col="black", lwd=2, lty=2)
+box()
+
+
+par(new=TRUE)
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="Pakistan"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+axis(side = 4, cex.axis=2, lwd=2)
+mtext (side=4, line=3, "log10(deaths+1)", cex.lab=2)
+
+
+## Bangladesh
+
+DHhisto_Bangladesh <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="Bangladesh"] +1)
+
+plot(DHhisto_Bangladesh, ylab="log10(Cases+1)", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="Bangladesh", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_Bangladesh2  <- filter(DHhisto_Bangladesh, rep(1/7,7)) 
+lines(DHhisto_Bangladesh2, type="l", col="black", lwd=2, lty=2)
+box()
+
+
+par(new=TRUE)
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="Bangladesh"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+#axis(side = 4, cex.axis=2, lwd=2)
+#mtext (side=4, line=3, "", cex.lab=2)
+axis(1, at=c(1, 32, 61, 92),  labels=c("Mar 1", "Apr 1", "May 1", "Jun 1"), cex.axis=2, las=2)
+
+
+
+## Afghanistan
+
+DHhisto_Afghanistan <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="Afghanistan"]+1)
+
+plot(DHhisto_Afghanistan, ylab="", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="Afghanistan", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_Afghanistan2  <- filter(DHhisto_Afghanistan, rep(1/7,7)) 
+lines(DHhisto_Afghanistan2, type="l", col="black", lwd=2, lty=2)
+box()
+
+
+par(new=TRUE)
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="Afghanistan"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+#axis(side = 4, cex.axis=2, lwd=2)
+#mtext (side=4, line=3, "", cex.lab=2)
+
+box()
+
+
+
+## Nepal
+
+DHhisto_Nepal <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="Nepal"]+1)
+
+plot(DHhisto_Nepal, ylab="", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="Nepal", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_Nepal2  <- filter(DHhisto_Nepal, rep(1/7,7)) 
+lines(DHhisto_Nepal2, type="l", col="black", lwd=2, lty=2)
+box()
+
+
+par(new=TRUE)
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="Nepal"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+
+axis(side = 4, cex.axis=2, lwd=2)
+mtext (side=4, line=3, "log10(deaths+1)", cex.lab=2)
+
+box()
+
+
+# Sri Lanka
+
+DHhisto_SriLanka <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="Sri Lanka"]+1)
+
+plot(DHhisto_SriLanka, ylab="log10(Cases+1)", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="Sri Lanka", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_SriLanka2  <- filter(DHhisto_SriLanka, rep(1/7,7)) 
+lines(DHhisto_SriLanka2, type="l", col="black", lwd=2, lty=2)
+box()
+
+
+par(new=TRUE)
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="Sri Lanka"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+#axis(side = 4, cex.axis=2, lwd=2)
+#mtext (side=4, line=3, "", cex.lab=2)
+axis(1, at=c(1, 32, 61, 92),  labels=c("Mar 1", "Apr 1", "May 1", "Jun 1"), cex.axis=2, las=2)
+
+box()
+
+
+
+## Bhutan
+
+DHhisto_Bhutan <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="Bhutan"]+1)
+
+plot(DHhisto_Bhutan, ylab="", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="Bhutan", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_Bhutan2  <- filter(DHhisto_Bhutan, rep(1/7,7)) 
+lines(DHhisto_Bhutan2, type="l", col="black", lwd=2, lty=2)
+box()
+
+
+par(new=TRUE)
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="Bhutan"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+#axis(side = 4, cex.axis=2, lwd=2)
+#mtext (side=4, line=3, "", cex.lab=2)
+axis(1, at=c(1, 32, 61, 92),  labels=c("Mar 1", "Apr 1", "May 1", "Jun 1"), cex.axis=2, las=2)
+
+box()
+
+
+
+
+## Maldives
+
+DHhisto_Maldives <- log10(SouthAsiaFinal$Daily_cases[SouthAsiaFinal$Location=="Maldives"]+1)
+
+plot(DHhisto_Maldives, ylab="", ylim=c(0,4), axes=F, col="gray", xlab="",
+     main="Maldives", cex.main=2, 
+     lwd=6, cex.lab=2, type="h", yaxs="i")
+axis(2, lwd=2 , cex.lab=2, cex.axis=2)
+## Running average 
+DHhisto_Maldives2  <- filter(DHhisto_Maldives, rep(1/7,7)) 
+lines(DHhisto_Maldives2, type="l", col="black", lwd=2, lty=2)
+box()
+
+
+par(new=TRUE)
+
+plot (log10(SouthAsiaFinal$Daily_deaths[SouthAsiaFinal$Location=="Maldives"]+1), type="l", col="red", lwd=2, yaxs="i", ylim=c(0,3),
+      axes=F, ylab = "" , xlab="" )
+axis(1, at=c(1, 32, 61, 92),  labels=c("Mar 1", "Apr 1", "May 1", "Jun 1"), cex.axis=2, las=2)
+
+axis(side = 4, cex.axis=2, lwd=2)
+mtext (side=4, line=3, "log10(deaths+1)", cex.lab=2)
+
+box()
+
+
+dev.off()
+
+
+

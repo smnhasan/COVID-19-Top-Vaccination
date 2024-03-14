@@ -1,0 +1,1049 @@
+******************************************************************************** 
+*2019
+********************************************************************************
+
+clear
+*directory
+cd "E:\ResearchProject\Jamal Sir\Rashed\Bangladesh MICS6 SPSS Datasets"
+
+******************************************************************************** 
+*DATA MERGE 
+********************************************************************************
+
+use "wm" , clear
+sort HH1 HH2 LN
+save "wm" , replace
+
+use "bh" , clear
+sort HH1 HH2 LN
+save "bh" , replace
+
+use "hh" , clear
+sort HH1 HH2
+save "hh" , replace
+
+use "ch" , clear
+sort HH1 HH2 LN
+save "ch" , replace
+
+merge using wm.dta
+tab _merge
+keep if _merge == 3
+save "ch" , replace
+drop _merge
+
+merge using hh.dta
+tab _merge
+keep if _merge == 3
+save "ch" , replace
+drop _merge
+
+merge using bh.dta
+tab _merge
+keep if _merge == 3
+save "ch" , replace
+drop _merge
+
+********************************************************************************
+*WEIGHT, STRATA, CLUSTER VARIABLE FOR THE APPENDED DATA
+********************************************************************************
+gen wgt=chweight
+svyset [pw=wgt],psu(HH1) strata(stratum)
+
+********************************************************************************
+*Inclusion and Exclusion
+********************************************************************************
+*keep only 3 and 4 years of children (exclude children under 3 years)
+keep if UB2>=3
+svy: tab UB2
+
+********************************************************************************
+*Checking information with report
+********************************************************************************
+[
+*Household water test (100ml).
+svy: tab WQ26
+gen HWE3=WQ26
+recode HWE3 0/100=2
+recode HWE3 101=1
+recode HWE3 991=.
+recode HWE3 992=.
+svy: tab HWE3
+
+*Source water test (100ml).
+svy: tab WQ27
+gen SWE3=WQ27
+recode SWE3 0/100=2
+recode SWE3 101=1
+recode SWE3 991=.
+recode SWE3 992=.
+svy: tab SWE3
+
+*Child had diarrhoea in last 2 weeks.
+svy: tab CA1
+gen D4=CA1
+recode D4 1=1
+recode D4 2=2
+recode D4 8=.
+recode D4 9=.
+recode D4 .=2
+svy: tab D4
+
+svy: tab HWE3
+tab HWE3 D4, row
+svy: tab HWE3 D4, row
+
+svy: tab SWE3
+tab SWE3 D4, row
+svy: tab SWE3 D4, row
+
+]
+
+
+
+*EDCI
+*Child identifies at least ten letters of the alphabet.
+svy: tab EC6
+gen identifies_alphabet1=EC6
+recode identifies_alphabet1 1=1
+recode identifies_alphabet1 2=0
+recode identifies_alphabet1 8=.
+recode identifies_alphabet1 9=.
+svy: tab identifies_alphabet1
+label define identifies_alphabet1  1 "Yes" 0 "No"
+label values identifies_alphabet identifies_alphabet1
+svy: tab identifies_alphabet
+
+*Child reads at least four simple, popular words.
+svy: tab EC7
+gen reads_words1=EC7
+recode reads_words1 1=1
+recode reads_words1 2=0
+recode reads_words1 8=.
+recode reads_words1 9=.
+svy: tab reads_words1
+label define reads_words1  1 "Yes" 0 "No"
+label values reads_words reads_words1
+svy: tab reads_words
+
+*Child knows name and recognizes symbol of all numbers from 1-10.
+svy: tab EC8
+gen recognizes_symbol1=EC8
+recode recognizes_symbol1 1=1
+recode recognizes_symbol1 2=0
+recode recognizes_symbol1 8=.
+recode recognizes_symbol1 9=.
+svy: tab recognizes_symbol1
+label define recognizes_symbol1  1 "Yes" 0 "No"
+label values recognizes_symbol recognizes_symbol1
+svy: tab recognizes_symbol
+
+*Literacy-numeracy.
+gen Literacy_numeracy = identifies_alphabet  + reads_words + recognizes_symbol
+svy: tab Literacy_numeracy
+
+generate Literacy_numeracy_score1=Literacy_numeracy
+recode Literacy_numeracy_score1 0/1=0
+recode Literacy_numeracy_score1 2/3=1
+label define Literacy_numeracy_score1  1 "Yes" 0 "No"
+label values Literacy_numeracy_score Literacy_numeracy_score1
+svy: tab Literacy_numeracy_score
+
+*Child able to pick up small object with 2 fingers.pick_object
+svy: tab EC9
+gen pick_object1=EC9
+recode pick_object1 1=1
+recode pick_object1 2=0
+recode pick_object1 8=.
+recode pick_object1 9=.
+svy: tab pick_object1
+label define pick_object1  1 "Yes" 0 "No"
+label values pick_object pick_object1
+svy: tab pick_object
+
+*Child sometimes too sick to play.
+svy: tab EC10
+gen sick_to_play1=EC10
+recode sick_to_play1 1=0
+recode sick_to_play1 2=1
+recode sick_to_play1 8=.
+recode sick_to_play1 9=.
+svy: tab sick_to_play1
+label define sick_to_play1  1 "Yes" 0 "No"
+label values sick_to_play sick_to_play1
+svy: tab sick_to_play
+
+*Physical
+gen Physical = pick_object  + sick_to_play
+svy: tab Physical
+
+generate Physical_score1=Physical
+recode Physical_score1 0=0
+recode Physical_score1 1/2=1
+label define Physical_score1  1 "Yes" 0 "No"
+label values Physical_score Physical_score1
+svy: tab Physical_score
+
+*Child follows simple directions.
+svy: tab EC11
+gen simple_directions1=EC11
+recode simple_directions1 1=1
+recode simple_directions1 2=0
+recode simple_directions1 8=.
+recode simple_directions1 9=.
+svy: tab simple_directions1
+label define simple_directions1  1 "Yes" 0 "No"
+label values simple_directions simple_directions1
+svy: tab simple_directions
+
+*Child able to do something independently.do_something
+svy: tab EC12
+gen do_something1=EC12
+recode do_something1 1=1
+recode do_something1 2=0
+recode do_something1 8=.
+recode do_something1 9=.
+svy: tab do_something1
+label define do_something1  1 "Yes" 0 "No"
+label values do_something do_something1
+svy: tab do_something
+
+*Learning
+gen Learning = simple_directions  + do_something
+svy: tab Learning
+
+generate Learning_score1=Learning
+recode Learning_score1 0=0
+recode Learning_score1 1/2=1
+label define Learning_score1  1 "Yes" 0 "No"
+label values Learning_score Learning_score1
+svy: tab Learning_score
+
+*Child gets along well with other children.
+svy: tab EC13
+gen well_with_children1=EC13
+recode well_with_children1 1=1
+recode well_with_children1 2=0
+recode well_with_children1 8=.
+recode well_with_children1 9=.
+svy: tab identifies_alphabet1
+label define well_with_children1  1 "Yes" 0 "No"
+label values well_with_children well_with_children1
+svy: tab well_with_children
+
+*Child kicks, bites or hits other children or adults.hits_children
+svy: tab EC14
+gen hits_children1=EC14
+recode hits_children1 1=0
+recode hits_children1 2=1
+recode hits_children1 8=.
+recode hits_children1 9=.
+svy: tab hits_children1
+label define hits_children1  1 "Yes" 0 "No"
+label values hits_children hits_children1
+svy: tab hits_children
+
+*Child gets distracted easily.
+svy: tab EC15
+gen distracted_easily1=EC15
+recode distracted_easily1 1=0
+recode distracted_easily1 2=1
+recode distracted_easily1 8=.
+recode distracted_easily1 9=.
+svy: tab distracted_easily1
+label define distracted_easily1  1 "Yes" 0 "No"
+label values distracted_easily distracted_easily1
+svy: tab distracted_easily
+
+
+*Social_emotional
+gen Social_emotional = well_with_children  + hits_children + distracted_easily
+svy: tab Social_emotional
+
+generate Social_emotional_score1=Social_emotional
+recode Social_emotional_score1 0/1=0
+recode Social_emotional_score1 2/3=1
+label define Social_emotional_score1  1 "Yes" 0 "No"
+label values Social_emotional_score Social_emotional_score1
+svy: tab Social_emotional_score
+
+*Social_emotional
+gen ECDI = Literacy_numeracy_score + Physical_score + Learning_score + Social_emotional_score
+svy: tab ECDI
+
+generate ECDI_score1=ECDI
+recode ECDI_score1 0/2=0
+recode ECDI_score1 3/4=1
+label define ECDI_score1  1 "Yes" 0 "No"
+label values ECDI_score ECDI_score1
+tab ECDI_score
+svy: tab ECDI_score
+
+
+*******End Of ECDI************.
+
+*Age.
+svy: tab UB2
+tab UB2 ECDI_score, row
+svy: tab UB2 ECDI_score, row
+
+*Residence.
+svy: tab HH6
+gen area1=HH6
+recode area1 1=1
+recode area1 2/4=2
+recode area1 5=3
+label define area1  1 "Rural" 2 "Urban" 3 "Tribal"
+label values area area1
+svy: tab area
+tab area ECDI_score, row
+svy: tab area ECDI_score, row
+
+*Division.
+svy: tab HH7
+tab HH7 ECDI_score, row
+svy: tab HH7 ECDI_score, row
+
+*Education.
+svy: tab melevel
+recode melevel 9=.
+svy: tab melevel
+tab melevel ECDI_score, row
+svy: tab melevel ECDI_score, row
+
+*Wealth index Status.
+svy: tab windex5
+recode windex5 0=.
+tab windex5 ECDI_score, row
+svy: tab windex5 ECDI_score, row
+
+*Religion.
+svy: tab HC1A
+gen Religion1=HC1A
+recode Religion1 1=1
+recode Religion1 2/7=2
+recode Religion1 9=.
+label define Religion1 1 "Islam" 2 "Others"
+label values Religion Religion1
+svy: tab Religion
+tab Religion ECDI_score, row
+svy: tab Religion ECDI_score, row
+
+*household sex.
+svy: tab HHSEX
+tab HHSEX ECDI_score, row
+svy: tab HHSEX ECDI_score, row
+
+*ethnicity.
+svy: tab ethnicity
+tab ethnicity ECDI_score, row
+svy: tab ethnicity ECDI_score, row
+
+*child sex.
+svy: tab HL4
+tab HL4 ECDI_score, row
+svy: tab HL4 ECDI_score, row
+
+*C-section (NW).
+svy: tab MN21
+gen C_Section1=MN21
+recode C_Section1 1=1
+recode C_Section1 2=2
+recode C_Section1 9=.
+label define C_Section1 1 "Yes" 2 "No"
+label values C_Section C_Section1
+svy: tab C_Section
+tab C_Section ECDI_score, chi2
+svy: tab C_Section ECDI_score, row
+
+*Place of delivery (NW).
+svy: tab MN20
+gen Place_delivery1=MN20
+recode Place_delivery1 11/12=1
+recode Place_delivery1 21/26=2
+recode Place_delivery1 31/36=3
+recode Place_delivery1 96=.
+recode Place_delivery1 76=.
+recode Place_delivery1 99=.
+label define Place_delivery1 1 "Home" 2 "Public" 3 "Private"
+label values Place_delivery Place_delivery1
+svy: tab Place_delivery
+tab Place_delivery ECDI_score, chi2
+svy: tab Place_delivery ECDI_score, row
+
+*ANC (NW).
+svy: tab MN5
+gen ANC2=MN5
+recode ANC2 1/3=1
+recode ANC2 4/15=2
+label define ANC2 1 "less4" 2 "4above"
+svy: tab ANC2
+tab ANC2 ECDI_score, chi2
+svy: tab ANC2 ECDI_score, row
+
+*Birth Weight (NW).
+svy: tab MN34
+gen BW2=MN34
+recode BW2 0/2.499=1
+recode BW2 2.500/4.000=2
+recode BW2 4.001/6.000=3
+recode BW2 9.998=.
+recode BW2 9.999=.
+label define BW2 1 "LBW" 2 "NBW" 3 "HBW"
+svy: tab BW2
+tab BW2 ECDI_score, chi2 
+svy: tab BW2 ECDI_score, row
+
+*Mother Age.
+svy: tab WAGE
+gen WA2=WAGE
+recode WA2 1=1
+recode WA2 2/4=2
+recode WA2 5/7=3
+label define WA2 1 "15-19" 2 "20-34" 3 "35+"
+svy: tab WA2
+tab WA2 ECDI_score, row
+svy: tab WA2 ECDI_score, row
+
+*Birth order.
+svy: tab brthord
+gen BO1=brthord
+label values BO BO1
+svy: tab BO
+tab BO ECDI_score, row
+svy: tab BO ECDI_score, row
+
+*Early Childhood Disease.
+recode CA1 8=.
+recode CA1 9=.
+recode CA1 2=0
+recode CA14 8=.
+recode CA14 9=.
+recode CA14 2=0
+recode CA16 8=.
+recode CA16 9=.
+recode CA16 2=0
+gen ED3 = CA1 + CA14 + CA16
+recode ED3 0=0
+recode ED3 1/3=1
+svy: tab ED3
+gen ED1=ED3
+label define ED1 1 "Yes" 0 "No"
+svy: tab ED1
+tab ED1 ECDI_score, row
+svy: tab ED1 ECDI_score, row
+
+*Weight for Age underweight.
+tab WAZ2
+recode WAZ2 99.97 = .
+recode WAZ2 99.98 = .
+recode WAZ2 99.99 = .
+tab WAZ2
+generate underweight1    = .
+replace  underweight1    = 1 if (WAZ2 <= -2) 
+replace  underweight1   = 2 if (WAZ2 > -2) & (WAZ2 <.) 
+label define underweight1 1 "Yes" 2 "No"
+label values underweight underweight1
+svy: tab underweight
+tab underweight ECDI_score, row
+svy: tab underweight ECDI_score, row
+
+*Height for Age Stunned.
+tab HAZ2
+recode HAZ2 99.97 = .
+recode HAZ2 99.98 = .
+recode HAZ2 99.99 = .
+tab HAZ2
+generate Stunned1    = .
+replace  Stunned1    = 1 if (HAZ2 <= -2) 
+replace  Stunned1    = 2 if (HAZ2 > -2) & (HAZ2 <.) 
+label define Stunned1 1 "Yes" 2 "No"
+label values Stunned Stunned1
+svy: tab Stunned
+tab Stunned ECDI_score, row
+svy: tab Stunned ECDI_score, row
+
+*Weight for Age Wasted.
+tab WHZ2
+recode WHZ2 99.97 = .
+recode WHZ2 99.98 = .
+recode WHZ2 99.99 = .
+tab WHZ2
+generate Wasted1    = .
+replace  Wasted1    = 1 if (WHZ2 <= -2) 
+replace  Wasted1    = 2 if (WHZ2 > -2) & (WHZ2 <.) 
+label define Wasted1 1 "Yes" 2 "No"
+label values Wasted Wasted1
+svy: tab Wasted
+tab Wasted ECDI_score, row
+svy: tab Wasted ECDI_score, row
+
+*Weight for Age Overweight.
+generate Overweight1    = .
+replace  Overweight1    = 1 if (WHZ2 >= 2) 
+replace  Overweight1    = 2 if (WHZ2 < 2)
+label define Overweight1 1 "Yes" 2 "No"
+label values Overweight Overweight1
+svy: tab Overweight
+tab Overweight ECDI_score, row
+svy: tab Overweight ECDI_score, row
+
+*Body Mass Index.
+tab BMI
+recode BMI 99.97 = .
+recode BMI 99.98 = .
+recode BMI 99.99 = .
+tab BMI
+generate BM1    = .
+replace  BM1    = 1 if (BMI < 18.5) 
+replace  BM1    = 2 if (BMI >= 18.5) & (BMI <25) 
+replace  BM1    = 3 if (BMI >= 25) 
+label define BM1 1 "Under" 2 "Normal" 3 "Over"
+svy: tab BM1
+tab BM1 ECDI_score, row
+svy: tab BM1 ECDI_score, row
+
+
+*Type of toilet facility.
+svy: tab WS11
+gen TF1=WS11
+recode TF1 11/23=1
+recode TF1 31/95=2
+recode TF1 96=3
+recode TF1 99=.
+label define TF1 1 "improved" 2 "unimproved" 3 "other"
+label values TF TF1
+svy: tab TF
+tab TF ECDI_score, row
+svy: tab TF ECDI_score, row
+
+*Early Childhood Education Program.
+svy: tab UB6
+gen ECEP1=UB6
+recode ECEP1 1=1
+recode ECEP1 2=2
+recode ECEP1 9=.
+label define ECEP1 1 "Yes" 2 "No"
+label values ECEP ECEP1
+svy: tab ECEP
+tab ECEP ECDI_score, row
+svy: tab ECEP ECDI_score, row
+
+*Mother Stimulation.
+tab EC5AA
+generate MS1    = 0
+replace  MS1    = 1 if (EC5AA == "A")
+replace  MS1    = 1 if (EC5BA == "A") 
+replace  MS1    = 1 if (EC5CA == "A") 
+replace  MS1    = 1 if (EC5DA == "A") 
+replace  MS1    = 1 if (EC5EA == "A") 
+replace  MS1    = 1 if (EC5FA == "A") 
+label define MS1 1 "Yes" 0 "No"
+svy: tab MS1
+tab MS1 ECDI_score, row
+svy: tab MS1 ECDI_score, row
+
+*Father Stimulation.
+generate FS1    = 0
+replace  FS1    = 1 if (EC5AB == "B") 
+replace  FS1    = 1 if (EC5BB == "B") 
+replace  FS1    = 1 if (EC5CB == "B")  
+replace  FS1    = 1 if (EC5DB == "B")  
+replace  FS1    = 1 if (EC5EB == "B")  
+replace  FS1    = 1 if (EC5FB == "B") 
+label define FS1 1 "Yes" 0 "No"
+svy: tab FS1
+tab FS1 ECDI_score, row
+svy: tab FS1 ECDI_score, row
+
+*Other Stimulation.
+generate OS1    = 0
+replace  OS1    = 1 if (EC5AX == "X") 
+replace  OS1    = 1 if (EC5BX == "X") 
+replace  OS1    = 1 if (EC5CX == "X")  
+replace  OS1    = 1 if (EC5DX == "X")  
+replace  OS1    = 1 if (EC5EX == "X")  
+replace  OS1    = 1 if (EC5FX == "X") 
+label define OS1 1 "Yes" 0 "No"
+svy: tab OS1
+tab OS1 ECDI_score, row
+svy: tab OS1 ECDI_score, row
+
+
+*Inadequate supervision.
+recode EC3A 8=.
+recode EC3A 9=.
+recode EC3B 8=.
+recode EC3B 9=.
+generate IS1    = .
+replace  IS1    = 0 if (EC3A == 0) 
+replace  IS1    = 1 if (EC3A == 1) 
+replace  IS1    = 1 if (EC3A == 2) 
+replace  IS1    = 1 if (EC3A == 3) 
+replace  IS1    = 1 if (EC3A == 4)
+replace  IS1    = 1 if (EC3A == 5)  
+replace  IS1    = 1 if (EC3A == 6) 
+replace  IS1    = 1 if (EC3A == 7)
+
+replace  IS1    = 0 if (EC3B == 0) 
+replace  IS1    = 1 if (EC3B == 1) 
+replace  IS1    = 1 if (EC3B == 2) 
+replace  IS1    = 1 if (EC3B == 3) 
+replace  IS1    = 1 if (EC3B == 4)
+replace  IS1    = 1 if (EC3B == 5)  
+replace  IS1    = 1 if (EC3B == 6) 
+replace  IS1    = 1 if (EC3B == 7)
+
+tab IS1
+label define IS1 1 "Yes" 0 "No"
+label values IS IS1
+svy: tab IS
+tab IS ECDI_score, row
+svy: tab IS ECDI_score, row
+
+*Salt Iodization.
+svy: tab SA1
+gen SI2=SA1
+recode SI2 1=0
+recode SI2 2=1
+recode SI2 3=1
+recode SI2 4=0
+recode SI2 6=0
+recode SI2 9=.
+label define SI2 0 "No" 1 "Yes"
+svy: tab SI2
+tab SI2 ECDI_score, row
+svy: tab SI2 ECDI_score, row
+
+*Books.
+svy: tab EC1
+gen Books1=EC1
+recode Books1 0=0
+recode Books1 1/10=1
+recode Books1 99=.
+label define Books1 0 "No" 1 "Yes"
+label values Books Books1
+svy: tab Books
+tab Books ECDI_score, row
+svy: tab Books ECDI_score, row
+
+*Toys.
+recode EC2A 8=.
+recode EC2A 9=.
+recode EC2B 8=.
+recode EC2B 9=.
+recode EC2C 8=.
+recode EC2C 9=.
+generate Toys1    = 2
+replace  Toys1    = 1 if (EC2A == 1) 
+replace  Toys1    = 2 if (EC2A == 2) 
+replace  Toys1    = 1 if (EC2B == 1)
+replace  Toys1    = 2 if (EC2B == 2)  
+replace  Toys1    = 1 if (EC2C == 1)  
+replace  Toys1    = 2 if (EC2C == 2) 
+label define Toys1 1 "Yes" 2 "No"
+label values Toys Toys1
+svy: tab Toys
+tab Toys ECDI_score, row
+svy: tab Toys ECDI_score, row
+
+*Mass Media.
+recode MT1 9=.
+recode MT2 9=.
+recode MT3 9=.
+generate MM1    = .
+replace  MM1    = 0 if (MT1 == 0) 
+replace  MM1    = 1 if (MT1 == 1) 
+replace  MM1    = 1 if (MT1 == 2) 
+replace  MM1    = 1 if (MT1 == 3) 
+replace  MM1    = 0 if (MT2 == 0)
+replace  MM1    = 1 if (MT2 == 1)  
+replace  MM1    = 1 if (MT2 == 2) 
+replace  MM1    = 1 if (MT2 == 3)
+replace  MM1    = 0 if (MT3 == 0)  
+replace  MM1    = 1 if (MT3 == 1) 
+replace  MM1    = 1 if (MT3 == 2) 
+replace  MM1    = 1 if (MT3 == 3)
+label define MM1 1 "Yes" 0 "No"
+label values MM MM1
+svy: tab MM
+tab MM ECDI_score, row
+svy: tab MM ECDI_score, row
+
+*Child Punishment.
+recode UCD2A 9 = .
+recode UCD2B 9 = .
+recode UCD2C 9 = .
+recode UCD2D 9 = .
+recode UCD2E 9 = .
+recode UCD2F 9 = .
+recode UCD2G 9 = .
+recode UCD2H 9 = .
+recode UCD2I 9 = .
+recode UCD2J 9 = .
+recode UCD2K 9 = .
+generate CPU1    = 2
+replace  CPU1    = 1 if (UCD2A == 1) 
+replace  CPU1    = 2 if (UCD2A == 2) 
+replace  CPU1    = 1 if (UCD2B == 1) 
+replace  CPU1    = 2 if (UCD2B == 2) 
+replace  CPU1    = 1 if (UCD2C == 1) 
+replace  CPU1    = 2 if (UCD2C == 2) 
+replace  CPU1    = 1 if (UCD2D == 1) 
+replace  CPU1    = 2 if (UCD2D == 2) 
+replace  CPU1    = 1 if (UCD2E == 1) 
+replace  CPU1    = 2 if (UCD2E == 2) 
+replace  CPU1    = 1 if (UCD2F == 1) 
+replace  CPU1    = 2 if (UCD2F == 2) 
+replace  CPU1    = 1 if (UCD2G == 1) 
+replace  CPU1    = 2 if (UCD2G == 2) 
+replace  CPU1    = 1 if (UCD2H == 1) 
+replace  CPU1    = 2 if (UCD2H == 2) 
+replace  CPU1    = 1 if (UCD2I == 1) 
+replace  CPU1    = 2 if (UCD2I == 2) 
+replace  CPU1    = 1 if (UCD2J == 1) 
+replace  CPU1    = 2 if (UCD2J == 2) 
+replace  CPU1    = 1 if (UCD2K == 1) 
+replace  CPU1    = 2 if (UCD2K == 2)  
+label define CPU1 1 "Yes" 2 "No"
+svy: tab CPU1
+tab CPU1 ECDI_score, row
+svy: tab CPU1 ECDI_score, row
+
+********************************************************************************
+**Univariate Logistic regression
+********************************************************************************
+
+svy: logit ECDI_score i.UB2, or
+svy: logit ECDI_score ib2.area, or
+svy: logit ECDI_score i.HH7, or
+svy: logit ECDI_score i.melevel, or
+svy: logit ECDI_score i.windex5, or
+svy: logit ECDI_score i.HL4, or
+
+svy: logit ECDI_score i.underweight, or
+svy: logit ECDI_score i.Stunned, or
+svy: logit ECDI_score ib2.ECEP, or
+svy: logit ECDI_score i.MS1, or
+svy: logit ECDI_score ib2.FS1, or
+svy: logit ECDI_score ib2.IS, or
+svy: logit ECDI_score i.Books, or
+svy: logit ECDI_score i.CPU1, or
+
+
+********************************************************************************
+**Multivariate Logistic regression
+********************************************************************************
+
+svy: logit ECDI_score i.UB2 ib2.area i.HH7 i.melevel i.windex5 i.HL4 i.underweight i.Stunned ib2.ECEP i.MS1 ib2.FS1 ib2.IS ib2.IS i.Books i.CPU1, or
+
+******************************************************************************** 
+*2012
+********************************************************************************
+
+clear
+*directory
+cd "E:\ResearchProject\Jamal Sir\Rashed\Bangladesh MICS 2012-13 SPSS Datasets"
+
+******************************************************************************** 
+*DATA MERGE 
+********************************************************************************
+
+use "wm" , clear
+sort HH1 HH2 LN
+save "wm" , replace
+
+use "hh" , clear
+sort HH1 HH2
+save "hh" , replace
+
+use "ch" , clear
+sort HH1 HH2 LN
+save "ch" , replace
+
+merge m:1 HH1 HH2 LN using wm.dta
+keep if _merge == 1
+save "ch" , replace
+drop _merge
+
+merge m:1 HH1 HH2 using hh.dta
+keep if _merge == 3
+save "ch" , replace
+drop _merge
+
+********************************************************************************
+*WEIGHT, STRATA, CLUSTER VARIABLE FOR THE APPENDED DATA
+********************************************************************************
+gen wgt=chweight
+svyset [pw=wgt],psu(HH1) strata(stratum)
+
+********************************************************************************
+*Inclusion and Exclusion
+********************************************************************************
+*keep only 3 and 4 years of children (exclude children under 3 years)
+keep if AG2>=3
+svy: tab AG2
+
+********************************************************************************
+*Checking information with report
+********************************************************************************
+
+*EDCI
+*Child identifies at least ten letters of the alphabet.
+svy: tab EC8
+gen identifies_alphabet1=EC8
+recode identifies_alphabet1 1=1
+recode identifies_alphabet1 2=0
+recode identifies_alphabet1 8=.
+recode identifies_alphabet1 9=.
+svy: tab identifies_alphabet1
+label define identifies_alphabet1  1 "Yes" 0 "No"
+label values identifies_alphabet identifies_alphabet1
+svy: tab identifies_alphabet
+
+*Child reads at least four simple, popular words.
+svy: tab EC9
+gen reads_words1=EC9
+recode reads_words1 1=1
+recode reads_words1 2=0
+recode reads_words1 8=.
+recode reads_words1 9=.
+svy: tab reads_words1
+label define reads_words1  1 "Yes" 0 "No"
+label values reads_words reads_words1
+svy: tab reads_words
+
+*Child knows name and recognizes symbol of all numbers from 1-10.
+svy: tab EC10
+gen recognizes_symbol1=EC10
+recode recognizes_symbol1 1=1
+recode recognizes_symbol1 2=0
+recode recognizes_symbol1 8=.
+recode recognizes_symbol1 9=.
+svy: tab recognizes_symbol1
+label define recognizes_symbol1  1 "Yes" 0 "No"
+label values recognizes_symbol recognizes_symbol1
+svy: tab recognizes_symbol
+
+*Literacy-numeracy.
+gen Literacy_numeracy = identifies_alphabet  + reads_words + recognizes_symbol
+svy: tab Literacy_numeracy
+
+generate Literacy_numeracy_score1=Literacy_numeracy
+recode Literacy_numeracy_score1 0/1=0
+recode Literacy_numeracy_score1 2/3=1
+label define Literacy_numeracy_score1  1 "Yes" 0 "No"
+label values Literacy_numeracy_score Literacy_numeracy_score1
+svy: tab Literacy_numeracy_score
+
+*Child able to pick up small object with 2 fingers.pick_object
+svy: tab EC11
+gen pick_object1=EC11
+recode pick_object1 1=1
+recode pick_object1 2=0
+recode pick_object1 8=.
+recode pick_object1 9=.
+svy: tab pick_object1
+label define pick_object1  1 "Yes" 0 "No"
+label values pick_object pick_object1
+svy: tab pick_object
+
+*Child sometimes too sick to play.
+svy: tab EC12
+gen sick_to_play1=EC12
+recode sick_to_play1 1=0
+recode sick_to_play1 2=1
+recode sick_to_play1 8=.
+recode sick_to_play1 9=.
+svy: tab sick_to_play1
+label define sick_to_play1  1 "Yes" 0 "No"
+label values sick_to_play sick_to_play1
+svy: tab sick_to_play
+
+*Physical
+gen Physical = pick_object  + sick_to_play
+svy: tab Physical
+
+generate Physical_score1=Physical
+recode Physical_score1 0=0
+recode Physical_score1 1/2=1
+label define Physical_score1  1 "Yes" 0 "No"
+label values Physical_score Physical_score1
+svy: tab Physical_score
+
+*Child follows simple directions.
+svy: tab EC13
+gen simple_directions1=EC13
+recode simple_directions1 1=1
+recode simple_directions1 2=0
+recode simple_directions1 8=.
+recode simple_directions1 9=.
+svy: tab simple_directions1
+label define simple_directions1  1 "Yes" 0 "No"
+label values simple_directions simple_directions1
+svy: tab simple_directions
+
+*Child able to do something independently.do_something
+svy: tab EC14
+gen do_something1=EC14
+recode do_something1 1=1
+recode do_something1 2=0
+recode do_something1 8=.
+recode do_something1 9=.
+svy: tab do_something1
+label define do_something1  1 "Yes" 0 "No"
+label values do_something do_something1
+svy: tab do_something
+
+*Learning
+gen Learning = simple_directions  + do_something
+svy: tab Learning
+
+generate Learning_score1=Learning
+recode Learning_score1 0=0
+recode Learning_score1 1/2=1
+label define Learning_score1  1 "Yes" 0 "No"
+label values Learning_score Learning_score1
+svy: tab Learning_score
+
+*Child gets along well with other children.
+svy: tab EC15
+gen well_with_children1=EC15
+recode well_with_children1 1=1
+recode well_with_children1 2=0
+recode well_with_children1 8=.
+recode well_with_children1 9=.
+svy: tab identifies_alphabet1
+label define well_with_children1  1 "Yes" 0 "No"
+label values well_with_children well_with_children1
+svy: tab well_with_children
+
+*Child kicks, bites or hits other children or adults.hits_children
+svy: tab EC16
+gen hits_children1=EC16
+recode hits_children1 1=0
+recode hits_children1 2=1
+recode hits_children1 8=.
+recode hits_children1 9=.
+svy: tab hits_children1
+label define hits_children1  1 "Yes" 0 "No"
+label values hits_children hits_children1
+svy: tab hits_children
+
+*Child gets distracted easily.
+svy: tab EC17
+gen distracted_easily1=EC17
+recode distracted_easily1 1=0
+recode distracted_easily1 2=1
+recode distracted_easily1 8=.
+recode distracted_easily1 9=.
+svy: tab distracted_easily1
+label define distracted_easily1  1 "Yes" 0 "No"
+label values distracted_easily distracted_easily1
+svy: tab distracted_easily
+
+
+*Social_emotional
+gen Social_emotional = well_with_children  + hits_children + distracted_easily
+svy: tab Social_emotional
+
+generate Social_emotional_score1=Social_emotional
+recode Social_emotional_score1 0/1=0
+recode Social_emotional_score1 2/3=1
+label define Social_emotional_score1  1 "Yes" 0 "No"
+label values Social_emotional_score Social_emotional_score1
+svy: tab Social_emotional_score
+
+*ECDI
+gen ECDI = Literacy_numeracy_score + Physical_score + Learning_score + Social_emotional_score
+svy: tab ECDI
+
+generate ECDI_score1=ECDI
+recode ECDI_score1 0/2=0
+recode ECDI_score1 3/4=1
+label define ECDI_score1  1 "Yes" 0 "No"
+label values ECDI_score ECDI_score1
+tab ECDI_score
+svy: tab ECDI_score
+
+*Age.
+svy: tab AG2
+tab AG2 ECDI_score, row
+svy: tab AG2 ECDI_score, row
+
+*Residence.
+svy: tab HH6
+gen area1=HH6
+recode area1 1=1
+recode area1 2/4=2
+recode area1 5=3
+label define area1  1 "Rural" 2 "Urban" 3 "Tribal"
+label values area area1
+svy: tab area
+tab area ECDI_score, row
+svy: tab area ECDI_score, row
+
+*Division.
+svy: tab HH7
+tab HH7 ECDI_score, row
+svy: tab HH7 ECDI_score, row
+
+*Education.
+svy: tab melevel
+recode melevel 1=2
+recode melevel 9=.
+svy: tab melevel
+tab melevel ECDI_score, row
+svy: tab melevel ECDI_score, row
+
+*Weakth Status.
+svy: tab windex5
+recode windex5 0=.
+tab windex5 ECDI_score, row
+svy: tab windex5 ECDI_score, row
+
+*Religion.
+svy: tab HC1A
+gen Religion1=HC1A
+recode Religion1 1=1
+recode Religion1 2/7=2
+recode Religion1 9=.
+label define Religion1 1 "Islam" 2 "Others"
+label values Religion Religion1
+svy: tab Religion
+tab Religion ECDI_score, row
+svy: tab Religion ECDI_score, row
+
+*household sex.
+svy: tab HHSEX
+tab HHSEX ECDI_score, row
+svy: tab HHSEX ECDI_score, row
+
+*ethnicity.
+svy: tab ethnicity
+tab ethnicity ECDI_score, row
+svy: tab ethnicity ECDI_score, row
+
+*child sex.
+svy: tab HL4
+tab HL4 ECDI_score, row
+svy: tab HL4 ECDI_score, row
+
+********************************************************************************
+**Univariate Logistic regression
+********************************************************************************
+svy: logit ECDI_score i.AG2, or
+svy: logit ECDI_score i.HL4, or
+svy: logit ECDI_score ib2.area, or
+svy: logit ECDI_score i.HH7, or
+svy: logit ECDI_score i.melevel, or
+svy: logit ECDI_score i.windex5, or
+svy: logit ECDI_score ib2.Religion, or
+svy: logit ECDI_score i.HHSEX, or
+svy: logit ECDI_score ib2.ethnicity, or
+
+********************************************************************************
+**Multivariate Logistic regression
+********************************************************************************
+
+svy: logit ECDI_score i.AG2 i.HL4 ib2.area i.HH7 i.melevel i.windex5 ib2.Religion i.HHSEX ib2.ethnicity,or
